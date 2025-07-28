@@ -11,8 +11,22 @@ import Chat from "./models/chats/chatS.js"
 import {generateComponent}  from "./services/api.js"
 const app = express()
 
-app.use(cors())
+const allowedOrigins = [process.env.FRONTEND_SERVER_API ,'http://localhost:3000'];
 
+const corsOptions = {
+      origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        } else {
+          return callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
