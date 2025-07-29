@@ -11,6 +11,7 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useEffect, useState } from "react";
+import ThemeToggler from "./ThemeToggler";
 
 export function NavbarMenu() {
   const [userExists, setUserExists] = useState(false);
@@ -50,6 +51,7 @@ export function NavbarMenu() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-4">
+            <ThemeToggler/>
             { userExists ? (
               <NavbarButton href="/signin" variant="primary">Login</NavbarButton>):(
               <NavbarButton href="/signin" onClick={logoutUser} variant="primary">Logout</NavbarButton>)

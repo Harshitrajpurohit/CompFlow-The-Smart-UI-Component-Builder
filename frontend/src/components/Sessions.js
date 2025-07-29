@@ -12,6 +12,7 @@ import {
   IconTableColumn,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 
 export function BentoGridMenu({ setUser }) {
@@ -25,7 +26,6 @@ export function BentoGridMenu({ setUser }) {
     }
     const userDetails = JSON.parse(userData)
     setUser(userDetails);
-    console.log(userDetails)
     fetchSessions(userDetails);
   }, [])
 
@@ -35,15 +35,19 @@ export function BentoGridMenu({ setUser }) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_API}/api/sessions/${userDetails?.email}`)
       const data = await res.json();
       setSessions(data.sessions);
-      console.log(data)
     } catch (error) {
       alert("Failed to fetch sessions")
     }
     setLoading(false);
   }
 
-  console.log(sessions)
-
+    if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-neutral-600" />
+      </div>
+    )
+  }
 
   const openSession = (id) =>{
     return router.push(`/sessions/${id}`)
