@@ -27,13 +27,15 @@ Return ONLY a valid JSON object in this exact format:
 
 ### JSX Requirements:
 - Must be a valid functional React component.
-- Must include: import React from "react";
+- Must include: import React, { useState } from "react";
 - Must include: import "./styles.css";
-- The entire component should be self-contained in a single file.
-- Use: export default function App() {}
-- Do NOT use extra React files, modules, hooks, or logic.
+- Use only **one file** (no extra files or modules).
+- Must use: export default function App() {} as the root component.
+- You may use basic React hooks like 'useState' or 'useEffect' **within the same file**.
 - Do NOT use TypeScript (use plain JavaScript only).
-- Do NOT include external libraries (e.g., Tailwind, Bootstrap, etc.).
+- Do NOT include external libraries (e.g., Tailwind, Bootstrap, styled-components).
+- Keep logic and styling self-contained inside one JSX and one CSS file.
+
 
 ### CSS Requirements:
 - Use only plain CSS (no SCSS, no styled-components).
