@@ -8,9 +8,11 @@ import { Loader2 } from "lucide-react"
 export default function SessionsPage() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isSession, setIsSession] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    setIsSession(false);
     const userData = localStorage.getItem("userDetails")
     if (!userData) {
       router.push("/signin")
@@ -26,6 +28,7 @@ export default function SessionsPage() {
     } finally {
       setLoading(false)
     }
+    setIsSession(true);
   }, [])
 
   if (loading) {
@@ -61,7 +64,12 @@ export default function SessionsPage() {
               Pick up where you left off or explore your previous work
             </p>
           </div>
-          <BentoGridMenu setUser={setUser} />
+          {isSession ? (
+            <BentoGridMenu setUser={setUser} />
+          ) : (
+            <div>No Sessions Created</div>
+          )}
+          
         </section>
       </div>
     </div>

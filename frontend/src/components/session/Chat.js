@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 
-export default function Chat({ chats, setChats, sessionId, setSession }) {
+export default function Chat({ chats, setChats, sessionId, setSession, setJsxCode, setCssCode }) {
   const [prompt, setPrompt] = useState("");
   const chatRef = useRef(null);
 
@@ -27,6 +27,8 @@ export default function Chat({ chats, setChats, sessionId, setSession }) {
 
       setChats((prev) => [...prev, data.newChat]);
       setSession(data.session);
+      setJsxCode(data.session.last_jsx)
+      setCssCode(data.session.last_css)
       setPrompt("");
     } catch (error) {
       console.log("Internal Error", error);

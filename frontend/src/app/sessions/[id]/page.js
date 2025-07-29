@@ -6,12 +6,20 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Chat from "@/components/session/Chat";
 import Code from "@/components/session/Code";
+import CopyButton from "@/components/CopyButton";
+import DownloadButton from "@/components/DownloadButton";
 
 export default function Page() {
   const [session, setSession] = useState(null);
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [jsxCode, setJsxCode] = useState('export default function App() { return <h1>Hello</h1>; }');
+  const [jsxCode, setJsxCode] = useState(`import react from "react"
+export default function App()
+{ 
+    return (
+    <h1>Hello</h1>
+    ); 
+}`);
   const [cssCode, setCssCode] = useState('body { font-family: sans-serif; }');
 
   const params = useParams();
@@ -39,6 +47,7 @@ export default function Page() {
     setLoading(false);
   }
 
+
   return (
     <div className="h-[calc(100vh-1rem)] w-full pt-15 flex justify-center bg-gray-50 dark:bg-gray-900">
       <Chat
@@ -46,6 +55,8 @@ export default function Page() {
         setChats={setChats}
         sessionId={sessionId}
         setSession={setSession}
+        setJsxCode={setJsxCode}
+        setCssCode={setCssCode}
       />
 
       {loading || !session ? (
@@ -66,19 +77,23 @@ export default function Page() {
           }}
           className="w-full"
         >
+
           <section className="flex flex-col h-full w-[70vw]">
             <PanelGroup direction="vertical" className="h-full w-full">
               <Panel
                 defaultSize={50}
-                minSize={20}
-                maxSize={80}
+                minSize={10}
+                maxSize={90}
                 className="h-full w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm"
               >
-              <SandpackPreview showRefreshButton className="h-full" />
-              {/* <Preview/> */}
+                <SandpackPreview showRefreshButton className="h-full" />
+                {/* <Preview/> */}
               </Panel>
-              <PanelResizeHandle className="h-2 w-full bg-gray-200 dark:bg-gray-700 cursor-row-resize hover:bg-gray-300 dark:hover:bg-gray-600" />
-              <Panel className="h-full w-full bg-gray-50 dark:bg-gray-900">
+              <Panel className="h-full w-full bg-gray-50 dark:bg-gray-900 relative">
+                <div className="absolute top-2 right-4 z-20 flex gap-3">
+                  <CopyButton/>
+                  <DownloadButton/>
+                </div>
                 <Code setJsxCode={setJsxCode} setCssCode={setCssCode} />
               </Panel>
             </PanelGroup>

@@ -18,6 +18,7 @@ export default function Code({ setJsxCode, setCssCode }) {
       <SandpackCodeEditor
         showTabs
         showLineNumbers
+        showCopyButton 
         wrapContent
         className="w-full h-full bg-gray-50 dark:bg-gray-900 rounded-md"
         onChange={handleChange}
