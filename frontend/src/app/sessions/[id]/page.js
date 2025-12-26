@@ -32,7 +32,7 @@ export default function App()
   async function getSession(sId) {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_API}/api/session/${sId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_API}/api/session/${sId}/chats`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       const ss = data.session;

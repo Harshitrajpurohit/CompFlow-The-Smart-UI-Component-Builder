@@ -1,30 +1,12 @@
-import express, { json } from "express"
-import mongoose from "mongoose"
+import express from "express"
 import cors from "cors"
-import bcrypt from "bcrypt"
 import dotenv from "dotenv"
-import jwt from "jsonwebtoken"
-import ConnectDB from "./models/connectDB.js"
-import Session from "./models/sessions/sessionS.js"
-import User from "./models/users/userS.js"
-import Chat from "./models/chats/chatS.js"
-import {generateComponent}  from "./services/api.js"
+import ConnectDB from "./config/connectDB.js"
+import corsOptions from "./config/cors.js"
+import authRoutes from "./routes/auth.routes.js"
+import sessionRoutes from "./routes/session.routes.js"
+import generateRoutes from "./routes/generateCode.routes.js"
 const app = express()
-
-const allowedOrigins = [process.env.FRONTEND_SERVER_API ,'http://localhost:3000'];
-
-const corsOptions = {
-      origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        } else {
-          return callback(new Error('Not allowed by CORS'));
-        }
-      },
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-};
 
 app.use(cors(corsOptions));
 dotenv.config()
@@ -41,166 +23,12 @@ app.get("/", (req, res) => {
 })
 
 
-app.get("/api/sessions/:email", async (req, res) => {
-    try {
-        const {email}  = req.params;
-        if (!email) {
-            throw new Error()
-        }
-        const user = await User.findOne({email})
+app.use("/api/sessions",sessionRoutes)
+app.use("/api/session",sessionRoutes)
 
-        if(!user){
-            return res.status(401).json("Please login.")
-        }
+app.use("/api/session",generateRoutes)
 
-        const sessions = await Session.find({userId:user._id})
-
-        res.status(201).json({sessions})
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "Failed to fetch sessions" })
-    }
-})
-
-
-app.post("/api/session", async (req, res) => {
-    try {
-        const { name, email } = req.body;
-        if (name === "" || email === "") {
-            throw new Error()
-        }
-         const user = await User.findOne({email})
-        if(!user){
-            return res.status(404).json("user not found.")
-        }
-        const tempSession = new Session({
-            name: name,
-            userId: user._id,
-            latest_key: 0,
-        });
-        const ses = await tempSession.save();
-        res.status(201).json({ sessionId: ses.id })
-
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "session not created." })
-    }
-})
-
-app.get("/api/session/:sessionId", async (req, res) => {
-    try {
-        const { sessionId } = req.params;
-        const session = await Session.findById(sessionId);
-        if(!session){
-            return res.status(404).json({message:"Session error."})
-        }
-        const chats = await Chat.find({sessionId})
-        
-        res.status(200).json({session, chats})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({message:"Internal server error."})
-    }
-})
-
-app.post("/api/session/:sessionId", async (req, res) => {
-    try {
-        const { sessionId } = req.params;
-        const { prompt } = req.body;
-
-        if (!mongoose.Types.ObjectId.isValid(sessionId)) {
-            return res.status(400).json({ message: "Invalid session ID" });
-        }
-        const session = await Session.findById(sessionId);
-        if (!session) {
-            res.status(400).json({ message: "Session is Invalid." })
-            return;
-        }
-        const response = await generateComponent(prompt, session.last_jsx, session.last_css)
-        if (session?.latest_key) {
-            session.latest_key = session.latest_key + 1;
-
-        } else {
-            session.latest_key = 1
-        }
-        session.chats_key.push(session.latest_key)
-        session.last_prompt = prompt;
-        session.last_jsx = response.jsx;
-        session.last_css = response.css;
-        session.last_explanation = response.explanation;
-
-        await session.save();
-
-        const chat = new Chat({
-            userId: session.userId,
-            sessionId: session.id,
-            key: session.latest_key,
-            prompt: prompt,
-            jsx: session.last_jsx,
-            css: session.last_css,
-            explanation: session.last_explanation,
-        })
-        const newChat = await chat.save()
-        res.status(200).json({newChat, session})
-
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "some error occure." })
-    }
-})
-
-
-app.post("/api/signup", async (req, res) => {
-    try {
-        const { name, email, password } = req.body
-
-        const user = await User.findOne({email})
-        if (user) {
-            return res.status(400).json({ message: "User already exists with this email." });
-        }
-        // bcrypt password;
-        const hashedPassword = await bcrypt.hash(password, 10)
-
-        const newUser = new User({
-            name,
-            email: email,
-            password: hashedPassword
-        })
-        // generate token
-        const token = await jwt.sign({id:newUser.id, email:newUser.email},process.env.SERECT_KEY)
-        
-        await newUser.save();
-        res.status(200).json({name : newUser.name, email: newUser.email, token})
-
-    } catch (error) {
-        console.log(error)
-        res.status(400).json({ message: "failed to signup." })
-    }
-})
-
-app.post("/api/signin",async (req,res)=>{
-    try {
-        const {email, password} = req.body;
-        const user = await User.findOne({email});
-        
-        if(!user){
-            return res.status(401).json({message:"User is not registered."})
-        }
-        // compare password
-        const isEqual = await bcrypt.compare(password, user?.password)
-        if(!isEqual){
-            return res.status(401).json({message:"Your Password is Wrong."})
-        }
-        
-        // create token 
-        const token = await jwt.sign({id:user.id, email:user.email},process.env.SERECT_KEY)
-
-         res.status(200).json({name : user.name, email: user.email, token})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: "Internal Server Error." })
-    }
-})
+app.use("/api", authRoutes)
 
 
 app.listen(PORT, () => {

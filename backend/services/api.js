@@ -6,10 +6,11 @@ dotenv.config();
 export async function generateComponent(prompt, jsxCode = "", cssCode = "") {
   try {
     const model = new ChatGoogleGenerativeAI({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite",
       apiKey: process.env.GEMINI_API_KEY,
       temperature: 0.5,
       maxOutputTokens: 2048,
+      maxRetries:2,
     });
 
 const componentPrompt = `

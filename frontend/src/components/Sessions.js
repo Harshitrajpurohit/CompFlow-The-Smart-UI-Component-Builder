@@ -32,7 +32,7 @@ export function BentoGridMenu({ setUser }) {
   async function fetchSessions(userDetails) {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_API}/api/sessions/${userDetails?.email}`)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_API}/api/sessions/user/${userDetails?.email}`)
       const data = await res.json();
       setSessions(data.sessions);
     } catch (error) {
