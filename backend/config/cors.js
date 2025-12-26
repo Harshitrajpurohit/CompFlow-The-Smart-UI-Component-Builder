@@ -1,3 +1,5 @@
+
+
 const allowedOrigins = [process.env.FRONTEND_SERVER_API ,'http://localhost:3000'];
 
 const corsOptions = {
